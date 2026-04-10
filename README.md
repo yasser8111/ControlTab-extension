@@ -1,9 +1,8 @@
 # ControlTap V2
 
 > [!NOTE]
-> الصور أدناه هي لنسخة قديمة من المشروع. تم تحديث الواجهة بشكل كبير في الإصدار الحالي.
+> The screenshots below are from the legacy **Version 1 (V1)**. The interface has been significantly updated and reimagined in the current version.
 
-(Old Preview Images)
 
 ![Preview 1](previwe-1.png)
 ![Preview 2](previwe-2.png)

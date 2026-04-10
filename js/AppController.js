@@ -708,9 +708,11 @@ class AppController {
       const sortableInstance = new Sortable(col, {
         group: "sharedColumns",
         animation: 150,
-        handle: ".group-header, .clock-widget",
+        handle: ".group-header, .clock-widget, .text-widget-content",
+        delay: 350, // Long press to drag (350ms)
+        delayOnTouchOnly: false,
         ghostClass: "sortable-ghost",
-        filter: ".add-group-placeholder",
+        filter: ".add-group-placeholder, .text-widget-editor", // Filter out editor
         onStart: () => document.body.classList.add("dragging-active"),
         onEnd: (evt) => {
           document.body.classList.remove("dragging-active");

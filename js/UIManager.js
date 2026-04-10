@@ -528,7 +528,13 @@ class UIManager {
         `;
         placeholder.addEventListener("click", () => actions.onAddGroup(i));
         colEl.appendChild(placeholder);
-        if (typeof lucide !== "undefined") lucide.createIcons();
+        
+        // Performance: Don't call createIcons on mousemove! 
+        // We can use a pre-rendered SVG or handle it once.
+        if (typeof lucide !== "undefined") {
+           lucide.createIcons({ nameAttr: 'data-lucide', root: placeholder });
+        }
+
         requestAnimationFrame(() => placeholder?.classList.add("visible"));
       };
 

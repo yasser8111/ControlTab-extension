@@ -11,6 +11,10 @@ class AppController {
 
     this.sortableInstances = [];
     this._bindStaticEvents();
+
+    // Performance: Debounce recursive rendering/saving
+    this.debouncedRenderAll = window.utils.debounce(() => this.renderAll(), 50);
+    this.debouncedSaveState = window.utils.debounce(() => this.stateManager.save(), 500);
   }
 
   async init() {
@@ -55,6 +59,16 @@ class AppController {
     this._initDragAndDrop();
   }
 
+  _onStateChange(renderImmediate = false) {
+    this.searchEngine.invalidateCache();
+    this.stateManager.save();
+    if (renderImmediate) {
+      this.renderAll();
+    } else {
+      this.debouncedRenderAll();
+    }
+  }
+
   _getActivePage() {
     const state = this.stateManager.getState();
     return state.pages.find(p => p.id === state.activePageId) || state.pages[0];
@@ -63,8 +77,7 @@ class AppController {
   _selectPage(id) {
     const state = this.stateManager.getState();
     state.activePageId = id;
-    this.stateManager.save();
-    this.renderAll();
+    this._onStateChange(true);
   }
 
   _addPage() {
@@ -76,8 +89,7 @@ class AppController {
       groups: []
     });
     state.activePageId = newId;
-    this.stateManager.save();
-    this.renderAll();
+    this._onStateChange(true);
   }
 
   _renamePage(id, newTitle) {
@@ -85,8 +97,7 @@ class AppController {
     const page = state.pages.find(p => p.id === id);
     if (page) {
       page.title = newTitle;
-      this.stateManager.save();
-      this.renderAll();
+      this._onStateChange();
     }
   }
 
@@ -96,16 +107,14 @@ class AppController {
     if (state.activePageId === id) {
       state.activePageId = state.pages[0]?.id;
     }
-    this.stateManager.save();
-    this.renderAll();
+    this._onStateChange(true);
   }
 
   _updateGroup(groupId, updates) {
     const group = this._findGroup(groupId);
     if (group) {
       Object.assign(group, updates);
-      this.stateManager.save();
-      this.renderAll();
+      this._onStateChange();
     }
   }
 
@@ -113,8 +122,7 @@ class AppController {
     const activePage = this._getActivePage();
     if (activePage) {
       activePage.groups = activePage.groups.filter((g) => g.id !== groupId);
-      this.stateManager.save();
-      this.renderAll();
+      this._onStateChange(true);
     }
   }
 
@@ -122,8 +130,7 @@ class AppController {
     const group = this._findGroup(groupId);
     if (group) {
       group.sites = group.sites.filter((s) => s.id !== siteId);
-      this.stateManager.save();
-      this.renderAll();
+      this._onStateChange(true);
     }
   }
 
@@ -131,8 +138,7 @@ class AppController {
     const group = this._findGroup(groupId);
     if (group) {
       group.sites.push({ id: `site-${Date.now()}`, name, url, desc });
-      this.stateManager.save();
-      this.renderAll();
+      this._onStateChange(true);
     }
   }
 
@@ -177,8 +183,7 @@ class AppController {
     });
 
     this.stateManager.sortGroups();
-    this.stateManager.save();
-    this.renderAll();
+    this._onStateChange(true);
     return newId;
   }
 
@@ -382,10 +387,9 @@ class AppController {
         settings.primaryColor = inputs.primaryColor.value;
         settings.cardOpacity = parseFloat(inputs.cardOpacity.value);
 
-        this.stateManager.save();
         await this.ui.applySettings(settings, this.mediaStorage);
+        this._onStateChange(true);
         this.ui.toggleModal("customize", false);
-        this.renderAll();
       });
 
     const saveAsTemplateBtn = document.getElementById("saveAsTemplateBtn");
@@ -426,11 +430,8 @@ class AppController {
             window.TRANSLATIONS[lang][state.customTemplates[0].id] = templateName;
         }
 
-        this.stateManager.save();
-        alert(this.ui.getTranslation("upload_success") || "Saved successfully");
+        this._onStateChange(true);
         this.ui.toggleModal("customize", false);
-        this.ui.applySettings(settings, this.mediaStorage);
-        this.renderAll();
       });
     }
 
@@ -505,9 +506,8 @@ class AppController {
       if (inputs.language) settings.language = inputs.language.value;
       if (inputs.hideScrollbar)
         settings.hideScrollbar = inputs.hideScrollbar.checked;
-      this.stateManager.save();
       this.ui.applySettings(settings, this.mediaStorage);
-      this.renderAll();
+      this._onStateChange(true);
       this.ui.toggleModal("settings", false);
     });
 
@@ -549,9 +549,8 @@ class AppController {
           if (inputs.language) inputs.language.value = 'en';
           if (inputs.hideScrollbar) inputs.hideScrollbar.checked = false;
           
-          this.stateManager.save();
           this.ui.applySettings(settings, this.mediaStorage);
-          this.renderAll();
+          this._onStateChange(true);
           this.ui.toggleModal("settings", false);
         }
       });
@@ -690,10 +689,9 @@ class AppController {
     settings.cardOpacity = template.opacity;
     settings.themeMode = template.theme;
 
-    this.stateManager.save();
     await this.ui.applySettings(settings, this.mediaStorage);
+    this._onStateChange(true);
     this.ui.toggleModal("templates", false);
-    this.renderAll();
   }
 
   _initDragAndDrop() {

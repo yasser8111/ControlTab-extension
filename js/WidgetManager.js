@@ -66,19 +66,13 @@ class WidgetManager {
    */
   _startInterval(anchorEl, updateFn, ms = 1000) {
     updateFn();
-    const interval = setInterval(updateFn, ms);
-    const observer = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        for (const node of m.removedNodes) {
-          if (node === anchorEl || (node.contains && node.contains(anchorEl))) {
-            clearInterval(interval);
-            observer.disconnect();
-            return;
-          }
-        }
+    const interval = setInterval(() => {
+      if (!anchorEl.isConnected) {
+        clearInterval(interval);
+        return;
       }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
+      updateFn();
+    }, ms);
   }
 
   /**

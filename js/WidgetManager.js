@@ -86,40 +86,18 @@ class WidgetManager {
    * Used by all widgets (clocks, text, etc.)
    */
   _createWidgetDropdown(group, actions, ui) {
-    const wrap = document.createElement('div');
-    wrap.className = 'group-settings-wrap clock-widget-settings';
-
-    const triggerBtn = document.createElement('button');
-    triggerBtn.className = 'group-settings-btn';
-    triggerBtn.setAttribute('aria-label', ui.getTranslation('group_options'));
-    triggerBtn.innerHTML = '<i data-lucide="ellipsis-vertical" width="16" height="16" stroke-width="1.5" aria-hidden="true"></i>';
-
-    const dropdown = document.createElement('div');
-    dropdown.className = 'group-dropdown';
-
-    const delBtn = document.createElement('button');
-    delBtn.className = 'delete-dropdown-btn';
-    delBtn.innerHTML = `<i data-lucide="trash" width="14" height="14" stroke-width="1.5"></i> ${ui.getTranslation('delete_group_btn')}`;
-    delBtn.addEventListener('click', (e) => {
+  _createWidgetDeleteBtn(group, actions, ui) {
+    const btn = document.createElement('button');
+    btn.className = 'widget-delete-btn';
+    btn.setAttribute('aria-label', ui.getTranslation('delete_group_btn'));
+    btn.innerHTML = '<i data-lucide="trash-2" width="14" height="14" stroke-width="1.5" aria-hidden="true"></i>';
+    btn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (confirm(ui.getTranslation('delete_group_confirm'))) {
         actions.onDeleteGroup(group.id);
       }
     });
-
-    dropdown.appendChild(delBtn);
-    wrap.appendChild(triggerBtn);
-    wrap.appendChild(dropdown);
-
-    triggerBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.querySelectorAll('.group-dropdown.show').forEach((d) => {
-        if (d !== dropdown) d.classList.remove('show');
-      });
-      dropdown.classList.toggle('show');
-    });
-
-    return wrap;
+    return btn;
   }
 
   // ─── Built-in Widgets ──────────────────────────────────────
@@ -135,7 +113,7 @@ class WidgetManager {
       aspectSquare: true,
       render: (group, groupEl, actions, ui) => {
         groupEl.classList.add('analog-widget');
-        groupEl.appendChild(this._createWidgetDropdown(group, actions, ui));
+        groupEl.appendChild(this._createWidgetDeleteBtn(group, actions, ui));
 
         const clockWrap = document.createElement('div');
         clockWrap.className = 'clock-widget';
@@ -180,7 +158,7 @@ class WidgetManager {
       aspectSquare: true,
       render: (group, groupEl, actions, ui) => {
         groupEl.classList.add('digital-widget');
-        groupEl.appendChild(this._createWidgetDropdown(group, actions, ui));
+        groupEl.appendChild(this._createWidgetDeleteBtn(group, actions, ui));
 
         const clockWrap = document.createElement('div');
         clockWrap.className = 'clock-widget';
@@ -233,7 +211,7 @@ class WidgetManager {
         }
 
         // Delete-only dropdown (no header)
-        groupEl.appendChild(this._createWidgetDropdown(group, actions, ui));
+        groupEl.appendChild(this._createWidgetDeleteBtn(group, actions, ui));
 
         // Content area (fills the whole card)
         const contentArea = document.createElement('div');

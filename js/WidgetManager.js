@@ -85,7 +85,6 @@ class WidgetManager {
    * Create a minimal widget dropdown with DELETE only.
    * Used by all widgets (clocks, text, etc.)
    */
-  _createWidgetDropdown(group, actions, ui) {
   _createWidgetDeleteBtn(group, actions, ui) {
     const btn = document.createElement('button');
     btn.className = 'widget-delete-btn';

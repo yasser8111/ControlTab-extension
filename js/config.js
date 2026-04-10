@@ -8,19 +8,19 @@ const CONFIG = {
 
 const UI_TEMPLATES = [
   {
+    id: "tem-1110",
+    type: "video",
+    url: "backgrounds/1110.mp4",
+    color: "#4A90E2",
+    opacity: 0.15,
+    theme: "dark",
+  },
+  {
     id: "tem-1111",
     type: "video",
     url: "backgrounds/1111.mp4",
     color: "#FF2E32",
     opacity: 0.1,
-    theme: "dark",
-  },
-  {
-    id: "tem-1118",
-    type: "video",
-    url: "backgrounds/1118.mp4",
-    color: "#342F37",
-    opacity: 0.15,
     theme: "dark",
   },
   {
@@ -69,6 +69,30 @@ const UI_TEMPLATES = [
     url: "backgrounds/1117.mp4",
     color: "#FB8500",
     opacity: 0.2,
+    theme: "dark",
+  },
+  {
+    id: "tem-1118",
+    type: "video",
+    url: "backgrounds/1118.mp4",
+    color: "#342F37",
+    opacity: 0.15,
+    theme: "dark",
+  },
+  {
+    id: "tem-1119",
+    type: "video",
+    url: "backgrounds/1119.mp4",
+    color: "#00B4D8",
+    opacity: 0.15,
+    theme: "dark",
+  },
+  {
+    id: "tem-11011",
+    type: "video",
+    url: "backgrounds/11011.mp4",
+    color: "#9B5DE5",
+    opacity: 0.1,
     theme: "dark",
   },
 ];

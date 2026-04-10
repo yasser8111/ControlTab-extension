@@ -101,9 +101,9 @@
   display: flex;
   justify-content: stretch;
   gap: var(--space-xl);
-  padding: calc(100px / var(--card-scale, 1))
+  padding: calc(110px / var(--card-scale, 1))
     calc(var(--space-3xl) / var(--card-scale, 1))
-    calc(var(--space-3xl) / var(--card-scale, 1))
+    calc(150px / var(--card-scale, 1))
     calc(var(--space-3xl) / var(--card-scale, 1));
   margin: 0 auto;
   max-width: calc(2000px / var(--card-scale, 1));
@@ -113,6 +113,11 @@
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color) transparent;
+}
+
+/* Adjust layout when search bar is visible */
+.search-bar-wrapper:not(.hidden) + .board {
+  padding-top: calc((80px + (80px * var(--search-scale, 1))) / var(--card-scale, 1));
 }
 
 .board-column {

@@ -42,6 +42,7 @@ class UIManager {
         searchSizeValue: document.getElementById("searchSizeValue"),
         pagesTabs: document.getElementById("pagesTabs"),
         searchBarWrapper: document.getElementById("searchBarWrapper"),
+        searchSizeControlWrap: document.getElementById("searchSizeControlWrap"),
       },
     };
 
@@ -147,20 +148,25 @@ class UIManager {
       if (texts[key]) el.setAttribute("placeholder", texts[key]);
     });
     document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
-        const key = el.getAttribute("data-i18n-aria");
-        if (texts[key]) el.setAttribute("aria-label", texts[key]);
+      const key = el.getAttribute("data-i18n-aria");
+      if (texts[key]) el.setAttribute("aria-label", texts[key]);
     });
     document.querySelectorAll("[data-i18n-content]").forEach((el) => {
-        const key = el.getAttribute("data-i18n-content");
-        if (texts[key]) el.setAttribute("content", texts[key]);
+      const key = el.getAttribute("data-i18n-content");
+      if (texts[key]) el.setAttribute("content", texts[key]);
     });
     if (texts.page_title) document.title = texts.page_title;
   }
 
   getTranslation(key, lang) {
     if (!window.TRANSLATIONS) return key;
-    const currentLang = lang || window.App?.stateManager?.getState()?.settings?.language || "ar";
-    return window.TRANSLATIONS[currentLang]?.[key] || window.TRANSLATIONS.ar[key] || key;
+    const currentLang =
+      lang || window.App?.stateManager?.getState()?.settings?.language || "ar";
+    return (
+      window.TRANSLATIONS[currentLang]?.[key] ||
+      window.TRANSLATIONS.ar[key] ||
+      key
+    );
   }
 
   async updateUserMediaPreview(mediaStorage, currentSettings) {
@@ -200,8 +206,7 @@ class UIManager {
 
     const media = await mediaStorage.loadMedia("customBg");
     if (!media || !media.file) {
-      container.innerHTML =
-        `<span style="font-size: 12px; opacity: 0.5;">${this.getTranslation("no_bg")}</span>`;
+      container.innerHTML = `<span style="font-size: 12px; opacity: 0.5;">${this.getTranslation("no_bg")}</span>`;
       return;
     }
 
@@ -241,7 +246,7 @@ class UIManager {
   async renderTemplates(onSelectTemplate, mediaStorage) {
     const grid = document.getElementById("templatesGrid");
     grid.innerHTML = "";
-    
+
     let customMediaBlobUrl = null;
     let customMediaIsVideo = false;
     if (mediaStorage) {
@@ -254,7 +259,7 @@ class UIManager {
 
     const state = window.App?.stateManager?.getState();
     const customTemplates = state?.customTemplates || [];
-    
+
     const allTemplates = [...customTemplates, ...UI_TEMPLATES];
 
     // Add 'Create Template' card
@@ -280,27 +285,36 @@ class UIManager {
     allTemplates.forEach((template) => {
       const item = document.createElement("button");
       item.className = "template-item";
-      
-      const templateName = this.getTranslation(template.id) !== template.id 
-          ? this.getTranslation(template.id) 
-          : (template.name || template.id);
 
-      item.setAttribute("aria-label", `${this.getTranslation("aria_template")} ${templateName}`);
+      const templateName =
+        this.getTranslation(template.id) !== template.id
+          ? this.getTranslation(template.id)
+          : template.name || template.id;
+
+      item.setAttribute(
+        "aria-label",
+        `${this.getTranslation("aria_template")} ${templateName}`,
+      );
 
       let isVideo = template.type === "video";
       let renderUrl = template.url;
 
       if (template.isCustom && !template.url && customMediaBlobUrl) {
-          renderUrl = customMediaBlobUrl;
-          isVideo = customMediaIsVideo;
+        renderUrl = customMediaBlobUrl;
+        isVideo = customMediaIsVideo;
       }
-      
-      const previewContent = isVideo
-        ? `<video src="${renderUrl || ''}" muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>`
-        : `<img src="${renderUrl || ''}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;" alt="${templateName}" />`;
 
-      const badgeText = isVideo ? this.getTranslation("video_badge") : this.getTranslation("image_badge");
-      const themeText = template.theme === "dark" ? this.getTranslation("theme_dark") : this.getTranslation("theme_light");
+      const previewContent = isVideo
+        ? `<video src="${renderUrl || ""}" muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>`
+        : `<img src="${renderUrl || ""}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;" alt="${templateName}" />`;
+
+      const badgeText = isVideo
+        ? this.getTranslation("video_badge")
+        : this.getTranslation("image_badge");
+      const themeText =
+        template.theme === "dark"
+          ? this.getTranslation("theme_dark")
+          : this.getTranslation("theme_light");
 
       item.innerHTML = `
                 <div class="template-preview" style="background: ${template.color};">
@@ -353,7 +367,7 @@ class UIManager {
       nameEl.className = "page-tab-name";
       nameEl.textContent = page.title || this.getTranslation("new_page");
       nameEl.dir = "auto";
-      
+
       nameEl.addEventListener("dblclick", (e) => {
         e.stopPropagation();
         nameEl.contentEditable = true;
@@ -362,7 +376,8 @@ class UIManager {
       });
       nameEl.addEventListener("blur", (e) => {
         nameEl.contentEditable = false;
-        const newTitle = e.target.textContent.trim() || this.getTranslation("new_page");
+        const newTitle =
+          e.target.textContent.trim() || this.getTranslation("new_page");
         if (newTitle !== page.title) {
           actions.onRenamePage(page.id, newTitle);
         }
@@ -376,10 +391,25 @@ class UIManager {
 
       tabEl.appendChild(nameEl);
 
-      // Delete button for non-home pages or if there's more than one page
+      // Edit and Delete buttons for pages
+      const actionsWrap = document.createElement("div");
+      actionsWrap.className = "page-tab-actions";
+
+      const renameBtn = document.createElement("button");
+      renameBtn.className = "action-page-btn";
+      renameBtn.innerHTML =
+        '<i data-lucide="pencil" width="12" height="12"></i>';
+      renameBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        nameEl.contentEditable = true;
+        nameEl.focus();
+        document.execCommand("selectAll", false, null);
+      });
+      actionsWrap.appendChild(renameBtn);
+
       if (pages.length > 1) {
-        const delBtn = document.createElement("div");
-        delBtn.className = "delete-page-btn";
+        const delBtn = document.createElement("button");
+        delBtn.className = "action-page-btn";
         delBtn.innerHTML = '<i data-lucide="x" width="14" height="14"></i>';
         delBtn.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -387,8 +417,10 @@ class UIManager {
             actions.onDeletePage(page.id);
           }
         });
-        tabEl.appendChild(delBtn);
+        actionsWrap.appendChild(delBtn);
       }
+
+      tabEl.appendChild(actionsWrap);
 
       tabEl.addEventListener("click", () => {
         if (page.id !== activePageId) {
@@ -435,8 +467,9 @@ class UIManager {
 
       const createPlaceholder = () => {
         // Don't show if dragging is active or already exists
-        if (placeholder || document.body.classList.contains("dragging-active")) return;
-        
+        if (placeholder || document.body.classList.contains("dragging-active"))
+          return;
+
         placeholder = document.createElement("button");
         placeholder.className = "add-group-placeholder";
         placeholder.innerHTML = `
@@ -500,28 +533,40 @@ class UIManager {
     });
     titleEl.addEventListener("blur", (e) => {
       titleEl.contentEditable = false;
-      const defaultTitle = this.getTranslation("new_group_placeholder") || "New Group";
+      const defaultTitle =
+        this.getTranslation("new_group_placeholder") || "New Group";
       const newTitle = e.target.textContent.trim() || defaultTitle;
       actions.onRenameGroup(group.id, newTitle);
     });
 
     const titleLower = group.title.trim().toLowerCase();
-    const isAnalogClock = (titleLower === 'clock' || titleLower === 'clook' || titleLower === 'ساعة') && group.sites.length === 0;
-    const isDigitalClock = (titleLower === 'digital' || titleLower === 'ساعة رقمية') && group.sites.length === 0;
+    const isAnalogClock =
+      (titleLower === "clock" ||
+        titleLower === "clook" ||
+        titleLower === "ساعة") &&
+      group.sites.length === 0;
+    const isDigitalClock =
+      (titleLower === "digital" || titleLower === "ساعة رقمية") &&
+      group.sites.length === 0;
     const isClockWidget = isAnalogClock || isDigitalClock;
 
     if (isClockWidget) {
+      groupEl.classList.add("widget-card");
       // Magic Widget: Clock
       // DO NOT Append Header for clock widget. Use an absolutely positioned dropdown
-      const settingsWrap = this._createGroupSettingsDropdown(group, actions, isAnalogClock ? 'analog' : 'digital');
+      const settingsWrap = this._createGroupSettingsDropdown(
+        group,
+        actions,
+        isAnalogClock ? "analog" : "digital",
+      );
       settingsWrap.className = "group-settings-wrap clock-widget-settings";
       groupEl.appendChild(settingsWrap);
 
       const clockWrap = document.createElement("div");
       clockWrap.className = "clock-widget";
-      
+
       let updateClock;
-      
+
       if (isDigitalClock) {
         const timeWrap = document.createElement("div");
         timeWrap.style.display = "flex";
@@ -530,10 +575,16 @@ class UIManager {
         timeWrap.style.gap = "8px";
 
         const timeEl = document.createElement("div");
-        timeEl.className = "clock-time";
+        timeEl.className = "clock-time skeleton-clock";
+        timeEl.dataset.skeleton = "00:00";
+        timeEl.textContent = "00:00"; // Initial state
 
         const ampmEl = document.createElement("div");
-        ampmEl.style.fontSize = "1.5rem";
+        ampmEl.className = "clock-indicator skeleton-clock";
+        ampmEl.dataset.skeleton = "A";
+        ampmEl.textContent = "A"; // Initial state
+        ampmEl.style.fontSize = "1.2rem";
+        ampmEl.style.lineHeight = "1";
         ampmEl.style.fontWeight = "700";
         ampmEl.style.opacity = "0.7";
         ampmEl.style.textTransform = "uppercase";
@@ -541,23 +592,25 @@ class UIManager {
         timeWrap.appendChild(timeEl);
         timeWrap.appendChild(ampmEl);
         clockWrap.appendChild(timeWrap);
-        
+
         updateClock = () => {
           if (!document.body.contains(clockWrap)) return;
           const now = new Date();
           let hours = now.getHours();
-          const minutes = now.getMinutes().toString().padStart(2, '0');
           const isPm = hours >= 12;
           hours = hours % 12;
-          hours = hours ? hours : 12; 
-          timeEl.textContent = `${hours}:${minutes}`;
-          ampmEl.textContent = isPm ? 'p' : 'a';
+          hours = hours ? hours : 12;
+          const hoursStr = hours.toString().padStart(2, "0");
+          const minutesStr = now.getMinutes().toString().padStart(2, "0");
+          
+          timeEl.textContent = `${hoursStr}:${minutesStr}`;
+          ampmEl.textContent = isPm ? "P" : "A";
         };
       } else {
         // Analog Block
         const analogBox = document.createElement("div");
         analogBox.className = "analog-clock";
-        
+
         const hourHand = document.createElement("div");
         hourHand.className = "analog-hand hour-hand";
         const minHand = document.createElement("div");
@@ -566,35 +619,35 @@ class UIManager {
         secHand.className = "analog-hand sec-hand";
         const centerDot = document.createElement("div");
         centerDot.className = "clock-center";
-        
+
         analogBox.appendChild(hourHand);
         analogBox.appendChild(minHand);
         analogBox.appendChild(secHand);
         analogBox.appendChild(centerDot);
         clockWrap.appendChild(analogBox);
-        
+
         updateClock = () => {
           if (!document.body.contains(clockWrap)) return;
           const now = new Date();
           const sec = now.getSeconds();
           const min = now.getMinutes();
           const hr = now.getHours();
-          
+
           const secDeg = sec * 6; // 360 / 60
           const minDeg = min * 6 + sec * 0.1;
           const hrDeg = (hr % 12) * 30 + min * 0.5;
-          
+
           secHand.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
           minHand.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
           hourHand.style.transform = `translateX(-50%) rotate(${hrDeg}deg)`;
         };
       }
-      
+
       groupEl.appendChild(clockWrap);
-      
+
       updateClock();
       const interval = setInterval(updateClock, 1000);
-      
+
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           mutation.removedNodes.forEach((node) => {
@@ -606,7 +659,6 @@ class UIManager {
         });
       });
       observer.observe(document.body, { childList: true, subtree: true });
-      
     } else {
       // Standard Group Rendering
       headerEl.appendChild(titleEl);
@@ -654,8 +706,7 @@ class UIManager {
     dropdown.className = "group-dropdown";
 
     const renameBtn = document.createElement("button");
-    renameBtn.innerHTML =
-      `<i data-lucide="pencil" width="14" height="14" stroke-width="1.5"></i> ${this.getTranslation("rename_group_btn")}`;
+    renameBtn.innerHTML = `<i data-lucide="pencil" width="14" height="14" stroke-width="1.5"></i> ${this.getTranslation("rename_group_btn")}`;
     renameBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       const newName = prompt(this.getTranslation("rename_group"), group.title);
@@ -667,8 +718,7 @@ class UIManager {
 
     const delBtn = document.createElement("button");
     delBtn.className = "delete-dropdown-btn";
-    delBtn.innerHTML =
-      `<i data-lucide="trash" width="14" height="14" stroke-width="1.5"></i> ${this.getTranslation("delete_group_btn")}`;
+    delBtn.innerHTML = `<i data-lucide="trash" width="14" height="14" stroke-width="1.5"></i> ${this.getTranslation("delete_group_btn")}`;
     delBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (confirm(this.getTranslation("delete_group_confirm"))) {
@@ -680,10 +730,11 @@ class UIManager {
       // Clock Widget Buttons
       const toggleClockBtn = document.createElement("button");
       const isAnalog = widgetType === "analog";
-      toggleClockBtn.innerHTML = `<i data-lucide="${isAnalog ? 'clock-4' : 'clock'}" width="14" height="14" stroke-width="1.5"></i> ${isAnalog ? 'تحويل إلى ساعة رقمية' : 'تحويل إلى ساعة عقارب'}`;
+      const btnText = isAnalog ? this.getTranslation("convert to digital") : this.getTranslation("convert to analog");
+      toggleClockBtn.innerHTML = `<i data-lucide="${isAnalog ? "clock-4" : "clock"}" width="14" height="14" stroke-width="1.5"></i> ${btnText}`;
       toggleClockBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        actions.onRenameGroup(group.id, isAnalog ? 'ساعة رقمية' : 'ساعة');
+        actions.onRenameGroup(group.id, isAnalog ? "ساعة رقمية" : "ساعة");
         dropdown.classList.remove("show");
       });
       dropdown.appendChild(toggleClockBtn);
@@ -693,7 +744,7 @@ class UIManager {
       dropdown.appendChild(renameBtn);
       dropdown.appendChild(delBtn);
     }
-    
+
     wrap.appendChild(triggerBtn);
     wrap.appendChild(dropdown);
 
@@ -711,11 +762,15 @@ class UIManager {
   _createSiteElement(site, groupId, actions) {
     const siteEl = document.createElement("a");
     siteEl.className = "site-item";
-    const openNewTab = window.App?.stateManager?.getState()?.settings?.openInNewTab ?? false;
+    const openNewTab =
+      window.App?.stateManager?.getState()?.settings?.openInNewTab ?? false;
     siteEl.href = site.url;
     siteEl.target = openNewTab ? "_blank" : "_self";
     siteEl.rel = "noopener noreferrer";
-    siteEl.setAttribute("aria-label", `${this.getTranslation("go_to_site")} ${site.name}`);
+    siteEl.setAttribute(
+      "aria-label",
+      `${this.getTranslation("go_to_site")} ${site.name}`,
+    );
     siteEl.dataset.id = site.id;
     siteEl.draggable = false;
 
@@ -746,7 +801,10 @@ class UIManager {
 
     const delSiteBtn = document.createElement("button");
     delSiteBtn.className = "delete-site-btn";
-    delSiteBtn.setAttribute("aria-label", `${this.getTranslation("delete_site_aria")} ${site.name}`);
+    delSiteBtn.setAttribute(
+      "aria-label",
+      `${this.getTranslation("delete_site_aria")} ${site.name}`,
+    );
     delSiteBtn.innerHTML =
       '<i data-lucide="x" width="14" height="14" stroke-width="2" aria-hidden="true"></i>';
     delSiteBtn.addEventListener("click", (e) => {

@@ -278,6 +278,10 @@ class AppController {
       if (containers.searchSizeValue)
         containers.searchSizeValue.textContent = (settings.searchSize || 100) + "%";
 
+      if (containers.searchSizeControlWrap) {
+        containers.searchSizeControlWrap.style.display = settings.showSearchBar ? "block" : "none";
+      }
+
       this.ui.toggleModal("settings", true);
     });
 
@@ -489,6 +493,14 @@ class AppController {
       this.ui.toggleModal("settings", false);
     });
 
+    if (inputs.showSearchBar) {
+      inputs.showSearchBar.addEventListener("change", (e) => {
+        if (containers.searchSizeControlWrap) {
+          containers.searchSizeControlWrap.style.display = e.target.checked ? "block" : "none";
+        }
+      });
+    }
+
     const resetBtn = document.getElementById("resetSettingsBtn");
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
@@ -576,6 +588,15 @@ class AppController {
       },
       { once: false },
     );
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          const closeBtn = overlay.querySelector('#closeCustomizeX, #closeSettingsX, #closeTemplatesX, #closeAboutX, #cancelSiteBtn');
+          if (closeBtn) closeBtn.click();
+        }
+      });
+    });
 
     // Keyboard Shortcuts
     document.addEventListener("keydown", (e) => {

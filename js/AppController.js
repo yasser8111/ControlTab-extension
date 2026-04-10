@@ -836,7 +836,9 @@ class AppController {
   }
 
   /**
-   * Alt + S: Add ONLY the currently active tab as a site in a new group.
+   * Alt + S: Add the most recently accessed real tab as a site in a new group.
+   * Since the user is on the new tab page (extension page), the "active" tab
+   * is the extension itself. We find the last real tab the user was on instead.
    */
   async _addCurrentTab() {
     if (typeof chrome === 'undefined' || !chrome.tabs) {
@@ -844,12 +846,25 @@ class AppController {
       return;
     }
     try {
-      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (!activeTab || !activeTab.url || activeTab.url.startsWith('chrome://') || activeTab.url.startsWith('chrome-extension://')) {
+      const allTabs = await chrome.tabs.query({ currentWindow: true });
+      // Filter out internal browser and extension pages
+      const realTabs = allTabs.filter(t =>
+        t.url &&
+        !t.url.startsWith('chrome://') &&
+        !t.url.startsWith('chrome-extension://') &&
+        !t.url.startsWith('about:') &&
+        !t.url.startsWith('edge://')
+      );
+
+      if (realTabs.length === 0) {
         this._showToast(this.ui.getTranslation('no_valid_tab') || 'No valid tab to add');
         return;
       }
-      const siteName = activeTab.title || new URL(activeTab.url).hostname;
+
+      // Pick the most recently accessed tab
+      const targetTab = realTabs.sort((a, b) => (b.lastAccessed || 0) - (a.lastAccessed || 0))[0];
+
+      const siteName = targetTab.title || new URL(targetTab.url).hostname;
       const groupId = this._addGroup();
       if (groupId) {
         const group = this._findGroup(groupId);
@@ -858,7 +873,7 @@ class AppController {
           group.sites.push({
             id: `site-${Date.now()}`,
             name: siteName,
-            url: activeTab.url,
+            url: targetTab.url,
             desc: ''
           });
           this.stateManager.save();

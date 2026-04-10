@@ -31,6 +31,7 @@ class UIManager {
         openInNewTab: document.getElementById("openInNewTabInput"),
         showSearchBar: document.getElementById("showSearchBarInput"),
         language: document.getElementById("languageInput"),
+        hideScrollbar: document.getElementById("hideScrollbarInput"),
       },
       containers: {
         bgPresets: document.getElementById("bgPresetsContainer"),
@@ -76,6 +77,12 @@ class UIManager {
       document.body.classList.add("simple-mode");
     } else {
       document.body.classList.remove("simple-mode");
+    }
+
+    if (settings.hideScrollbar) {
+      document.body.classList.add("hide-scrollbar");
+    } else {
+      document.body.classList.remove("hide-scrollbar");
     }
 
     if (settings.showSearchBar && this.elements.containers.searchBarWrapper) {
@@ -149,7 +156,7 @@ class UIManager {
     const texts = window.TRANSLATIONS[lang] || window.TRANSLATIONS.ar;
     document.querySelectorAll("[data-i18n]").forEach((el) => {
       const key = el.getAttribute("data-i18n");
-      if (texts[key]) el.textContent = texts[key];
+      if (texts[key]) el.innerHTML = texts[key];
     });
     document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
       const key = el.getAttribute("data-i18n-placeholder");

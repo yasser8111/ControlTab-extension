@@ -271,6 +271,8 @@ class AppController {
       if (inputs.showSearchBar)
         inputs.showSearchBar.checked = settings.showSearchBar || false;
       if (inputs.language) inputs.language.value = settings.language || "ar";
+      if (inputs.hideScrollbar)
+        inputs.hideScrollbar.checked = settings.hideScrollbar || false;
       if (containers.colCountValue)
         containers.colCountValue.textContent = settings.columnsCount || 6;
       if (containers.cardSizeValue)
@@ -487,6 +489,8 @@ class AppController {
       if (inputs.showSearchBar)
         settings.showSearchBar = inputs.showSearchBar.checked;
       if (inputs.language) settings.language = inputs.language.value;
+      if (inputs.hideScrollbar)
+        settings.hideScrollbar = inputs.hideScrollbar.checked;
       this.stateManager.save();
       this.ui.applySettings(settings, this.mediaStorage);
       this.renderAll();
@@ -527,6 +531,7 @@ class AppController {
           if (inputs.openInNewTab) inputs.openInNewTab.checked = false;
           if (inputs.showSearchBar) inputs.showSearchBar.checked = true;
           if (inputs.language) inputs.language.value = 'en';
+          if (inputs.hideScrollbar) inputs.hideScrollbar.checked = false;
           
           this.stateManager.save();
           this.ui.applySettings(settings, this.mediaStorage);

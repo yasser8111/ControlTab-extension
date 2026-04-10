@@ -45,3 +45,17 @@ body {
   background-color: var(--primary-color);
   border-radius: var(--radius-full);
 }
+
+/* Utility to hide all scrollbars */
+.hide-scrollbar ::-webkit-scrollbar,
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+.hide-scrollbar,
+.hide-scrollbar * {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
+}

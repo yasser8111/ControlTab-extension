@@ -33,7 +33,8 @@ class StateManager {
           openInNewTab: false,
           language: "en",
           showSearchBar: true,
-          searchSize: 100
+          searchSize: 100,
+          hideScrollbar: false
         },
         pages: [
           {
@@ -118,6 +119,7 @@ class StateManager {
     this.state.settings.openInNewTab ??= false;
     this.state.settings.showSearchBar ??= false;
     this.state.settings.language ??= "en";
+    this.state.settings.hideScrollbar ??= false;
 
     const colCount = this.state.settings.columnsCount;
     this.state.pages.forEach(page => {

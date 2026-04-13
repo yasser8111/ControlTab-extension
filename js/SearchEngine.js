@@ -79,14 +79,14 @@ class SearchEngine {
     if (isHistorySearchEnabled && typeof chrome !== "undefined" && chrome.history) {
       try {
         const historyResults = await new Promise((resolve, reject) => {
-          chrome.history.search({ text: query, maxResults: 15 }, (results) => {
+          chrome.history.search({ text: query, maxResults: 100 }, (results) => {
             if (signal.aborted) return reject(new Error("Aborted"));
             resolve(results || []);
           });
         });
 
         historyResults.sort((a, b) => (b.visitCount || 0) - (a.visitCount || 0));
-        historyResults.slice(0, 5).forEach(item => {
+        historyResults.slice(0, 50).forEach(item => {
           addSuggestion({ type: "history", text: item.title || item.url, url: item.url });
         });
       } catch (e) {
@@ -94,14 +94,7 @@ class SearchEngine {
       }
     }
 
-    // fallback historical recent searches from local state
-    const stateHistory = this.stateManager.getState().searchHistory || [];
-    const matchedStateHistory = stateHistory.filter(h => h.toLowerCase().includes(lowerQuery) && h.toLowerCase() !== lowerQuery).slice(0, 10);
-    matchedStateHistory.forEach(h => {
-        addSuggestion({ type: "search_history", text: h, url: "search_action" });
-    });
-
-    return suggestions.slice(0, 20);
+    return suggestions.slice(0, 50);
   }
 
   /**

@@ -96,12 +96,12 @@ class SearchEngine {
 
     // fallback historical recent searches from local state
     const stateHistory = this.stateManager.getState().searchHistory || [];
-    const matchedStateHistory = stateHistory.filter(h => h.toLowerCase().includes(lowerQuery) && h.toLowerCase() !== lowerQuery).slice(0, 3);
+    const matchedStateHistory = stateHistory.filter(h => h.toLowerCase().includes(lowerQuery) && h.toLowerCase() !== lowerQuery).slice(0, 10);
     matchedStateHistory.forEach(h => {
         addSuggestion({ type: "search_history", text: h, url: "search_action" });
     });
 
-    return suggestions.slice(0, 10);
+    return suggestions.slice(0, 20);
   }
 
   /**

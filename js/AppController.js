@@ -1103,7 +1103,7 @@ class AppController {
           state.searchHistory = state.searchHistory || [];
           state.searchHistory = state.searchHistory.filter(h => h !== query);
           state.searchHistory.unshift(query);
-          if (state.searchHistory.length > 10) state.searchHistory.pop();
+          if (state.searchHistory.length > 30) state.searchHistory.pop();
           this.stateManager.save();
           
           const encodedQuery = encodeURIComponent(query);

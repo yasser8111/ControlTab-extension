@@ -1005,17 +1005,14 @@ class AppController {
     }
 
     if (template.fullSettings) {
-      const designKeys = [
+      const coreAestheticKeys = [
         "bgType",
         "bgImage",
         "primaryColor",
         "cardOpacity",
         "themeMode",
-        "hideBorders",
-        "hideIconBg",
-        "columnsCount",
       ];
-      designKeys.forEach((key) => {
+      coreAestheticKeys.forEach((key) => {
         if (template.fullSettings[key] !== undefined) {
           settings[key] = template.fullSettings[key];
         }
@@ -1025,11 +1022,6 @@ class AppController {
       settings.primaryColor = template.color;
       settings.cardOpacity = template.opacity;
       settings.themeMode = template.theme;
-      settings.hideBorders =
-        template.hideBorders !== undefined ? template.hideBorders : true;
-      settings.iconOnlyMode = template.iconOnlyMode || false;
-      settings.hideIconBg = template.hideIconBg || false;
-      if (template.columnsCount) settings.columnsCount = template.columnsCount;
     }
 
     await this.ui.applySettings(settings, this.mediaStorage);
